@@ -1,11 +1,13 @@
 const invoiceMsg = document.getElementById("invoice-msg");
 const paymentMsg = document.getElementById("payment-msg");
+const vendorBillMsg = document.getElementById("vendor-bill-msg");
 
 async function loadDropdowns() {
   try {
-    const [patients, products] = await Promise.all([
+    const [patients, products, suppliers] = await Promise.all([
       apiFetch("/api/patients"),
-      apiFetch("/api/products")
+      apiFetch("/api/products"),
+      apiFetch("/api/suppliers")
     ]);
     document.getElementById("invPatient").innerHTML = patients.length
       ? patients.map(p => `<option value="${p.patientId}">${p.fullName} (#${p.patientId})</option>`).join("")
@@ -14,6 +16,10 @@ async function loadDropdowns() {
     document.getElementById("invProduct").innerHTML = products.length
       ? products.map(p => `<option value="${p.productId}">${p.name} — ${money(p.unitPrice)}</option>`).join("")
       : `<option value="">No products yet — add some via /api/products</option>`;
+
+    document.getElementById("vendorSupplier").innerHTML = suppliers.length
+      ? suppliers.map(s => `<option value="${s.supplierId}">${s.name}</option>`).join("")
+      : `<option value="">No suppliers yet</option>`;
   } catch (err) {
     showError(invoiceMsg, err);
   }
@@ -38,6 +44,28 @@ async function loadInvoices() {
     `).join("");
   } catch (err) {
     showError(invoiceMsg, err);
+  }
+}
+
+async function loadVendorBills() {
+  const tbody = document.querySelector("#vendor-bills-table tbody");
+  try {
+    const bills = await apiFetch("/api/vendor-bills");
+    if (bills.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="muted">No supplier bills yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = bills.map(b => `
+      <tr>
+        <td class="num">${b.vendorBillId}</td>
+        <td>${b.supplier ? b.supplier.name : "—"}</td>
+        <td>${b.billNumber}</td>
+        <td class="num">${money(b.amount)}</td>
+        <td>${statusBadge(b.status)}</td>
+      </tr>
+    `).join("");
+  } catch (err) {
+    showError(vendorBillMsg, err);
   }
 }
 
@@ -98,6 +126,25 @@ document.getElementById("payment-form").addEventListener("submit", async (e) => 
   }
 });
 
+document.getElementById("vendor-bill-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = {
+    supplierId: Number(document.getElementById("vendorSupplier").value),
+    billNumber: document.getElementById("vendorBillNumber").value,
+    amount: Number(document.getElementById("vendorAmount").value),
+    notes: document.getElementById("vendorNotes").value || ""
+  };
+  try {
+    await apiFetch("/api/vendor-bills", { method: "POST", body: JSON.stringify(payload) });
+    showSuccess(vendorBillMsg, "Vendor bill saved.");
+    document.getElementById("vendor-bill-form").reset();
+    loadVendorBills();
+  } catch (err) {
+    showError(vendorBillMsg, err);
+  }
+});
+
 loadDropdowns();
 loadInvoices();
+loadVendorBills();
 loadLowStock();

@@ -126,29 +126,28 @@ mvn clean package -DskipTests
 java -jar target/health-platform.jar
 ```
 
-The website and API both start on **http://localhost:8080**.
+The website and API both start on **http://localhost:8081** by default.
 
 ## Security
 
-All `/api/**` endpoints require HTTP Basic authentication:
+All `/api/**` endpoints require HTTP Basic authentication. Development defaults:
 
-- **Username:** `admin`
-- **Password:** `admin123`
+- Admin: `admin` / `admin123`
+- Accountant: `accountant` / `accountant123`
 
 The website's JavaScript (`static/js/api.js`) already sends these
 credentials automatically, so the site works out of the box. The static
 pages themselves (`/`, `*.html`, `/css/**`, `/js/**`) are public so they
 can load before any login happens.
 
-To change the credentials, edit both:
-1. `src/main/java/com/ruralhealth/platform/config/SecurityConfig.java`
-   (the `userDetailsService()` bean)
-2. `src/main/resources/static/js/api.js` (`ADMIN_USER` / `ADMIN_PASS`)
+Set `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ACCOUNTANT_USERNAME`, and
+`ACCOUNTANT_PASSWORD` in the environment to override these defaults. Admins
+can write clinical master data; accountants can use billing, purchasing,
+budgets, journals, and reports. The in-memory identities are for development,
+not production patient-data access control.
 
-This is intentionally simple (single hardcoded admin account) for a small
-clinic deployment. Before handling real patient data in production,
-replace it with proper per-user accounts, hashed passwords, and
-role-based access control.
+The static website uses the development admin credentials in
+`src/main/resources/static/js/api.js`.
 
 ## Stage 3 — REST APIs (Patient/Doctor/etc. CRUD)
 
@@ -159,9 +158,11 @@ role-based access control.
 | Departments   | `GET/POST /api/departments`, `PUT/DELETE /api/departments/{id}` |
 | Products/Services | `GET/POST /api/products`, `PUT/DELETE /api/products/{id}`, `GET /api/products/low-stock` |
 | Dashboard | `GET /api/dashboard/summary` |
-| Consultations | `GET /api/consultations`, `GET /api/consultations/{id}`, `GET /api/consultations/patient/{patientId}`, `PATCH /api/consultations/{id}/status` |
+| Consultations | `POST /api/consultations` (intake + triage), `GET /api/consultations`, `GET /api/consultations/{id}`, `GET /api/consultations/patient/{patientId}`, `PATCH /api/consultations/{id}/status` |
 | Suppliers     | `GET/POST /api/suppliers` |
-| Purchase Orders | `GET/POST /api/purchase-orders`, `PATCH /api/purchase-orders/{id}/receive` |
+| Chart of Accounts | `GET/POST /api/chart-of-accounts`, `PUT /api/chart-of-accounts/{id}` |
+| Purchase Orders | `GET/POST /api/purchase-orders`, `PATCH /api/purchase-orders/{id}/receive`, `PATCH /api/purchase-orders/{id}/pay` |
+| Journal | `GET /api/journal-entries` |
 
 Example — create a patient:
 ```bash
@@ -233,11 +234,10 @@ curl -X POST http://localhost:8080/api/payments \
 | Balance Sheet | `GET /api/reports/balance-sheet` |
 | Budget Utilization | `GET /api/budgets/utilization?year=2026&month=9` |
 
-The P&L and Balance Sheet are derived live from the double-entry
+The P&L applies the requested calendar year. The P&L and Balance Sheet are derived live from the double-entry
 `chart_of_accounts` / `journal_entries` / `journal_lines` ledger — every
-invoice, payment, and received purchase order automatically posts a
-balanced journal entry (see `JournalService.java`), so these reports stay
-accurate without any separate reconciliation step.
+invoice, payment, purchase receipt, and supplier payment automatically post
+a balanced journal entry (see `JournalService.java`).
 
 Budget workflow:
 ```bash
@@ -245,6 +245,11 @@ Budget workflow:
 curl -X POST http://localhost:8080/api/budgets \
   -H "Content-Type: application/json" \
   -d '{"department":{"departmentId":1},"fiscalYear":2026,"fiscalMonth":9,"allocatedAmount":50000}'
+
+# Include departmentId when creating a purchase order to post its receipt to that period's budget
+curl -X POST http://localhost:8081/api/purchase-orders \
+  -H "Content-Type: application/json" \
+  -d '{"supplierId":1,"departmentId":1,"lines":[{"productId":6,"quantity":10,"unitCost":25}]}'
 
 # Record spend against it (e.g. after a purchase order)
 curl -X PATCH http://localhost:8080/api/budgets/1/spend \
@@ -260,9 +265,9 @@ src/main/java/com/ruralhealth/platform/
   entity/       15 JPA entities (one per table)
   repository/   Spring Data JPA repositories
   service/      TriageService, BillingService, BudgetService, JournalService, ReportService
-  controller/   REST controllers (Patient, Doctor, Department, Product,
+  controller/   REST controllers (Patient, Doctor, Department, Product, Chart of Accounts,
                 Triage, Consultation, Invoice, Payment, Supplier,
-                PurchaseOrder, Budget, Report, Dashboard)
+                PurchaseOrder, Journal, Budget, Report, Dashboard)
   dto/          Request/response payloads (Triage, reports, dashboard)
   config/       SecurityConfig, GlobalExceptionHandler, DataSeeder
 
@@ -277,10 +282,11 @@ src/main/resources/
 
 ## Notes / things to adjust before production use
 
-- **Security**: there is no authentication/authorization layer yet. For a
-  real deployment, add Spring Security (JWT or session-based) in front of
-  all `/api/**` endpoints, since this handles patient health data.
+- **Security**: replace in-memory development users with persistent, per-user
+  identities, hashed passwords, and patient-level access controls before
+  handling real patient data.
 - **Validation**: add `@Valid` + Bean Validation annotations on the
   request DTOs/entities for stricter input checking.
-- **Database credentials**: change the default `root/root` credentials in
-  `application.properties` before deploying anywhere shared.
+- **Database credentials**: set `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD`
+  for the database, and override all default app-user credentials before
+  deploying anywhere shared.

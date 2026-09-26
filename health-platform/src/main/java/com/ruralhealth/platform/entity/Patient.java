@@ -16,6 +16,9 @@ public class Patient {
     @Column(nullable = false, length = 120)
     private String fullName;
 
+    @Column(unique = true, length = 32)
+    private String uhid;
+
     private LocalDate dateOfBirth;
     private String gender;
     private String phone;

@@ -4,11 +4,13 @@
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/config/SecurityConfig.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/config/package-info.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/BudgetController.java
+/workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/ChartOfAccountController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/ConsultationController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/DashboardController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/DepartmentController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/DoctorController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/InvoiceController.java
+/workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/JournalEntryController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/PatientController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/PaymentController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/ProductController.java
@@ -16,6 +18,7 @@
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/ReportController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/SupplierController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/TriageController.java
+/workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/VendorBillController.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/controller/package-info.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/dto/BalanceSheetReport.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/dto/BudgetUtilizationReport.java
@@ -39,6 +42,7 @@
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/entity/PurchaseItem.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/entity/PurchaseOrder.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/entity/Supplier.java
+/workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/entity/VendorBill.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/entity/package-info.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/package-info.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/repository/BudgetRepository.java
@@ -56,6 +60,7 @@
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/repository/PurchaseItemRepository.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/repository/PurchaseOrderRepository.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/repository/SupplierRepository.java
+/workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/repository/VendorBillRepository.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/service/BillingService.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/service/BudgetService.java
 /workspaces/health_platform/health-platform/src/main/java/com/ruralhealth/platform/service/JournalService.java

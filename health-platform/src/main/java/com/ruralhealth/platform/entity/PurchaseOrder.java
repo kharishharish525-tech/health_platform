@@ -19,8 +19,12 @@ public class PurchaseOrder {
     @JoinColumn(name = "supplier_id", nullable = false)
     private Supplier supplier;
 
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
     private LocalDateTime orderDate = LocalDateTime.now();
-    private String status = "PENDING"; // PENDING, RECEIVED, CANCELLED
+    private String status = "PENDING"; // PENDING, RECEIVED, PAID, CANCELLED
 
     @Column(precision = 14, scale = 2)
     private BigDecimal totalAmount = BigDecimal.ZERO;

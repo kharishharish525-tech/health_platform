@@ -28,11 +28,12 @@ public class ReportService {
     }
 
     /** Net movement (debits - credits, or credits - debits depending on account type) per account. */
-    private Map<ChartOfAccount, BigDecimal> netBalancesByType(List<String> accountTypes, boolean creditPositive) {
+    private Map<ChartOfAccount, BigDecimal> netBalancesByType(List<String> accountTypes, boolean creditPositive, Integer fiscalYear) {
         Map<ChartOfAccount, BigDecimal> balances = new LinkedHashMap<>();
         List<JournalEntry> entries = journalEntryRepository.findAll();
 
         for (JournalEntry entry : entries) {
+            if (fiscalYear != null && entry.getEntryDate().getYear() != fiscalYear) continue;
             for (JournalLine line : entry.getLines()) {
                 ChartOfAccount account = line.getAccount();
                 if (!accountTypes.contains(account.getAccountType())) continue;
@@ -41,15 +42,15 @@ public class ReportService {
                         ? line.getCreditAmount().subtract(line.getDebitAmount())
                         : line.getDebitAmount().subtract(line.getCreditAmount());
 
-                balances.merge(account, delta, BigDecimal::add);
+                balances.merge(account, delta, (current, amount) -> current.add(amount));
             }
         }
         return balances;
     }
 
     public ProfitLossReport profitAndLoss(Integer fiscalYear) {
-        Map<ChartOfAccount, BigDecimal> revenue = netBalancesByType(List.of("REVENUE"), true);
-        Map<ChartOfAccount, BigDecimal> expenses = netBalancesByType(List.of("EXPENSE"), false);
+        Map<ChartOfAccount, BigDecimal> revenue = netBalancesByType(List.of("REVENUE"), true, fiscalYear);
+        Map<ChartOfAccount, BigDecimal> expenses = netBalancesByType(List.of("EXPENSE"), false, fiscalYear);
 
         Map<String, BigDecimal> revenueByName = new LinkedHashMap<>();
         BigDecimal totalRevenue = BigDecimal.ZERO;
@@ -70,9 +71,9 @@ public class ReportService {
     }
 
     public BalanceSheetReport balanceSheet() {
-        Map<ChartOfAccount, BigDecimal> assets = netBalancesByType(List.of("ASSET"), false);
-        Map<ChartOfAccount, BigDecimal> liabilities = netBalancesByType(List.of("LIABILITY"), true);
-        Map<ChartOfAccount, BigDecimal> equity = netBalancesByType(List.of("EQUITY"), true);
+        Map<ChartOfAccount, BigDecimal> assets = netBalancesByType(List.of("ASSET"), false, null);
+        Map<ChartOfAccount, BigDecimal> liabilities = netBalancesByType(List.of("LIABILITY"), true, null);
+        Map<ChartOfAccount, BigDecimal> equity = netBalancesByType(List.of("EQUITY"), true, null);
 
         Map<String, BigDecimal> assetMap = new LinkedHashMap<>();
         BigDecimal totalAssets = BigDecimal.ZERO;

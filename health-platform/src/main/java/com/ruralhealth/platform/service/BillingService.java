@@ -99,8 +99,8 @@ public class BillingService {
         payment = paymentRepository.save(payment);
 
         BigDecimal totalPaid = paymentRepository.findByInvoice_InvoiceId(invoiceId).stream()
-                .map(Payment::getAmountPaid)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(existingPayment -> existingPayment.getAmountPaid())
+                .reduce(BigDecimal.ZERO, (total, paymentAmount) -> total.add(paymentAmount));
 
         if (totalPaid.compareTo(invoice.getTotalAmount()) >= 0) {
             invoice.setStatus("PAID");
@@ -113,9 +113,13 @@ public class BillingService {
         journalService.postEntry(
                 "Payment received for invoice #" + invoiceId,
                 "PAYMENT", payment.getPaymentId(),
-                "1000", "1100", amount
+            isBankPayment(method) ? "1010" : "1000", "1100", amount
         );
 
         return payment;
+    }
+
+    private boolean isBankPayment(String method) {
+        return method != null && List.of("BANK", "CARD", "UPI", "DIGITAL").contains(method.toUpperCase());
     }
 }

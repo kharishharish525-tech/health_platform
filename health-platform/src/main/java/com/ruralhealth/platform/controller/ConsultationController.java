@@ -1,7 +1,10 @@
 package com.ruralhealth.platform.controller;
 
 import com.ruralhealth.platform.entity.Consultation;
+import com.ruralhealth.platform.dto.TriageRequest;
+import com.ruralhealth.platform.dto.TriageResponse;
 import com.ruralhealth.platform.repository.ConsultationRepository;
+import com.ruralhealth.platform.service.TriageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +16,16 @@ import java.util.Map;
 public class ConsultationController {
 
     private final ConsultationRepository consultationRepository;
+    private final TriageService triageService;
 
-    public ConsultationController(ConsultationRepository consultationRepository) {
+    public ConsultationController(ConsultationRepository consultationRepository, TriageService triageService) {
         this.consultationRepository = consultationRepository;
+        this.triageService = triageService;
+    }
+
+    @PostMapping
+    public TriageResponse create(@RequestBody TriageRequest request) {
+        return triageService.evaluate(request);
     }
 
     @GetMapping

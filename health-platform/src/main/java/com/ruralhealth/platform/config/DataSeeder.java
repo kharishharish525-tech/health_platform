@@ -1,9 +1,11 @@
 package com.ruralhealth.platform.config;
 
 import com.ruralhealth.platform.entity.Department;
+import com.ruralhealth.platform.entity.ChartOfAccount;
 import com.ruralhealth.platform.entity.Doctor;
 import com.ruralhealth.platform.entity.Product;
 import com.ruralhealth.platform.repository.DepartmentRepository;
+import com.ruralhealth.platform.repository.ChartOfAccountRepository;
 import com.ruralhealth.platform.repository.DoctorRepository;
 import com.ruralhealth.platform.repository.ProductRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -23,16 +25,27 @@ public class DataSeeder implements CommandLineRunner {
     private final DepartmentRepository departmentRepository;
     private final DoctorRepository doctorRepository;
     private final ProductRepository productRepository;
+    private final ChartOfAccountRepository chartOfAccountRepository;
 
     public DataSeeder(DepartmentRepository departmentRepository, DoctorRepository doctorRepository,
-                       ProductRepository productRepository) {
+                       ProductRepository productRepository, ChartOfAccountRepository chartOfAccountRepository) {
         this.departmentRepository = departmentRepository;
         this.doctorRepository = doctorRepository;
         this.productRepository = productRepository;
+        this.chartOfAccountRepository = chartOfAccountRepository;
     }
 
     @Override
     public void run(String... args) {
+        addAccount("1000", "Cash", "ASSET");
+        addAccount("1010", "Bank", "ASSET");
+        addAccount("1100", "Patient Debtors", "ASSET");
+        addAccount("1500", "Medical Equipment", "ASSET");
+        addAccount("2000", "Pharma Creditors", "LIABILITY");
+        addAccount("3000", "Opening Equity", "EQUITY");
+        addAccount("4100", "Consultation Fees", "REVENUE");
+        addAccount("5000", "Medical Supplies Expense", "EXPENSE");
+
         if (departmentRepository.count() == 0) {
             Department general = save(new Department(), "General Medicine", "Block A");
             Department emergency = save(new Department(), "Emergency", "Block A - Ground Floor");
@@ -68,6 +81,18 @@ public class DataSeeder implements CommandLineRunner {
             addGoods("IV Fluid - Normal Saline", "Pharmacy", new BigDecimal("120.00"), 50, 15);
             addGoods("Surgical Gloves (box)", "Supplies", new BigDecimal("180.00"), 30, 10);
         }
+        addService("Telemedicine Consultation", "Consultation", new BigDecimal("300.00"));
+        addService("Emergency Diagnostic", "Diagnostics", new BigDecimal("800.00"));
+        addGoods("Antibiotics", "Pharmacy", new BigDecimal("50.00"), 0, 10);
+    }
+
+    private void addAccount(String code, String name, String type) {
+        if (chartOfAccountRepository.findByAccountCode(code).isPresent()) return;
+        ChartOfAccount account = new ChartOfAccount();
+        account.setAccountCode(code);
+        account.setAccountName(name);
+        account.setAccountType(type);
+        chartOfAccountRepository.save(account);
     }
 
     private Department save(Department dept, String name, String location) {
@@ -78,6 +103,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void addService(String name, String category, BigDecimal price) {
+        if (productRepository.findAll().stream().anyMatch(product -> product.getName().equalsIgnoreCase(name))) return;
         Product p = new Product();
         p.setName(name);
         p.setCategory(category);
@@ -89,6 +115,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void addGoods(String name, String category, BigDecimal price, int stock, int reorderLevel) {
+        if (productRepository.findAll().stream().anyMatch(product -> product.getName().equalsIgnoreCase(name))) return;
         Product p = new Product();
         p.setName(name);
         p.setCategory(category);

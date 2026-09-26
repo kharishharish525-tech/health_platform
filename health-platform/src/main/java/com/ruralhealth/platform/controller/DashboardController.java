@@ -1,7 +1,6 @@
 package com.ruralhealth.platform.controller;
 
 import com.ruralhealth.platform.dto.DashboardSummary;
-import com.ruralhealth.platform.entity.Invoice;
 import com.ruralhealth.platform.repository.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,13 +48,13 @@ public class DashboardController {
 
         BigDecimal todaysRevenue = invoiceRepository.findAll().stream()
                 .filter(inv -> inv.getInvoiceDate() != null && inv.getInvoiceDate().toLocalDate().isEqual(today))
-                .map(Invoice::getTotalAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(inv -> inv != null && inv.getTotalAmount() != null ? inv.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, (total, amount) -> total.add(amount));
 
         BigDecimal totalUnpaid = invoiceRepository.findAll().stream()
-                .filter(inv -> !"PAID".equals(inv.getStatus()))
-                .map(Invoice::getTotalAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .filter(inv -> inv != null && !"PAID".equals(inv.getStatus()))
+                .map(inv -> inv != null && inv.getTotalAmount() != null ? inv.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, (total, amount) -> total.add(amount));
 
         long lowStockCount = productRepository.findAll().stream()
                 .filter(p -> Boolean.FALSE.equals(p.getIsService()))

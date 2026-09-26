@@ -26,20 +26,32 @@ public class BudgetService {
     public Budget recordSpend(Long budgetId, BigDecimal amount) {
         Budget budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> new IllegalArgumentException("Budget not found: " + budgetId));
-        budget.setSpentAmount(budget.getSpentAmount().add(amount));
+        BigDecimal spent = budget.getSpentAmount() == null ? BigDecimal.ZERO : budget.getSpentAmount();
+        budget.setSpentAmount(spent.add(amount));
+        return budgetRepository.save(budget);
+    }
+
+    public Budget recordDepartmentSpend(Long departmentId, Integer fiscalYear, Integer fiscalMonth, BigDecimal amount) {
+        Budget budget = budgetRepository
+                .findByDepartment_DepartmentIdAndFiscalYearAndFiscalMonth(departmentId, fiscalYear, fiscalMonth)
+                .stream().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Budget not found for department and period"));
+        BigDecimal spent = budget.getSpentAmount() == null ? BigDecimal.ZERO : budget.getSpentAmount();
+        budget.setSpentAmount(spent.add(amount));
         return budgetRepository.save(budget);
     }
 
     public List<BudgetUtilizationReport> utilizationReport(Integer fiscalYear, Integer fiscalMonth) {
         List<Budget> budgets = budgetRepository.findByFiscalYearAndFiscalMonth(fiscalYear, fiscalMonth);
         return budgets.stream().map(b -> {
-            BigDecimal remaining = b.getAllocatedAmount().subtract(b.getSpentAmount());
+                BigDecimal spent = b.getSpentAmount() == null ? BigDecimal.ZERO : b.getSpentAmount();
+                BigDecimal remaining = b.getAllocatedAmount().subtract(spent);
             double pct = b.getAllocatedAmount().compareTo(BigDecimal.ZERO) == 0 ? 0.0 :
-                    b.getSpentAmount().divide(b.getAllocatedAmount(), 4, RoundingMode.HALF_UP)
+                    spent.divide(b.getAllocatedAmount(), 4, RoundingMode.HALF_UP)
                             .multiply(BigDecimal.valueOf(100)).doubleValue();
             return new BudgetUtilizationReport(
                     b.getDepartment().getName(), b.getFiscalYear(), b.getFiscalMonth(),
-                    b.getAllocatedAmount(), b.getSpentAmount(), remaining, pct
+                    b.getAllocatedAmount(), spent, remaining, pct
             );
         }).toList();
     }

@@ -2,6 +2,8 @@ package com.ruralhealth.platform.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -12,12 +14,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Minimal security layer: the static website (HTML/CSS/JS under /static)
- * is public so the login-less pages load, but every /api/** call requires
- * HTTP Basic auth. This is intentionally simple for a small rural clinic
- * deployment — swap for full Spring Security + roles/JWT before using this
- * with real patient data in production. Default credentials are
- * admin / admin123 (see README.md to change them).
+ * Static website files are public; API endpoints require HTTP Basic auth.
+ * Credentials are configurable for local deployment. Replace in-memory users
+ * with persistent identity management before using real patient data.
  */
 @Configuration
 public class SecurityConfig {
@@ -29,6 +28,12 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/*.html", "/css/**", "/js/**", "/favicon.ico", "/error").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/chart-of-accounts/**", "/api/departments/**",
+                    "/api/doctors/**", "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/chart-of-accounts/**", "/api/departments/**",
+                    "/api/doctors/**", "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/departments/**", "/api/doctors/**",
+                    "/api/products/**").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
@@ -38,11 +43,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails admin = User.withUsername("admin")
-                .password("{noop}admin123")
+        public UserDetailsService userDetailsService(
+            @Value("${app.security.admin.username:admin}") String adminUsername,
+            @Value("${app.security.admin.password:admin123}") String adminPassword,
+            @Value("${app.security.accountant.username:accountant}") String accountantUsername,
+            @Value("${app.security.accountant.password:accountant123}") String accountantPassword) {
+        UserDetails admin = User.withUsername(adminUsername)
+            .password("{noop}" + adminPassword)
                 .roles("ADMIN")
                 .build();
-        return new InMemoryUserDetailsManager(admin);
+        UserDetails accountant = User.withUsername(accountantUsername)
+            .password("{noop}" + accountantPassword)
+            .roles("ACCOUNTANT")
+            .build();
+        return new InMemoryUserDetailsManager(admin, accountant);
     }
 }

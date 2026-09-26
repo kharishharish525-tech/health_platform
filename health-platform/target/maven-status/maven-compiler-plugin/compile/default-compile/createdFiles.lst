@@ -4,6 +4,7 @@ com/ruralhealth/platform/repository/SupplierRepository.class
 com/ruralhealth/platform/dto/BudgetUtilizationReport.class
 com/ruralhealth/platform/controller/DashboardController.class
 com/ruralhealth/platform/repository/JournalLineRepository.class
+com/ruralhealth/platform/controller/package-info.class
 com/ruralhealth/platform/controller/PaymentController.class
 com/ruralhealth/platform/repository/PurchaseOrderRepository.class
 com/ruralhealth/platform/service/BudgetService.class
@@ -14,11 +15,13 @@ com/ruralhealth/platform/entity/Invoice.class
 com/ruralhealth/platform/repository/DepartmentRepository.class
 com/ruralhealth/platform/entity/Consultation.class
 com/ruralhealth/platform/controller/PatientController.class
+com/ruralhealth/platform/service/package-info.class
 com/ruralhealth/platform/dto/ProfitLossReport.class
 com/ruralhealth/platform/dto/TriageResponse.class
 com/ruralhealth/platform/service/JournalService.class
 com/ruralhealth/platform/repository/PurchaseItemRepository.class
 com/ruralhealth/platform/controller/InvoiceController$InvoiceLineDto.class
+com/ruralhealth/platform/dto/package-info.class
 com/ruralhealth/platform/entity/ChartOfAccount.class
 com/ruralhealth/platform/controller/ReportController.class
 com/ruralhealth/platform/entity/Supplier.class
@@ -30,6 +33,7 @@ com/ruralhealth/platform/service/BillingService$InvoiceLineRequest.class
 com/ruralhealth/platform/config/DataSeeder.class
 com/ruralhealth/platform/config/GlobalExceptionHandler.class
 com/ruralhealth/platform/service/ReportService.class
+com/ruralhealth/platform/entity/package-info.class
 com/ruralhealth/platform/repository/PatientRepository.class
 com/ruralhealth/platform/dto/BalanceSheetReport.class
 com/ruralhealth/platform/repository/ProductRepository.class
@@ -40,6 +44,7 @@ com/ruralhealth/platform/service/TriageService.class
 com/ruralhealth/platform/controller/ProductController.class
 com/ruralhealth/platform/entity/Payment.class
 com/ruralhealth/platform/controller/InvoiceController.class
+com/ruralhealth/platform/config/package-info.class
 com/ruralhealth/platform/entity/JournalEntry.class
 com/ruralhealth/platform/entity/PurchaseOrder.class
 com/ruralhealth/platform/repository/ConsultationRepository.class
