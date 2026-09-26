@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · Rural Health Network Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Rural Health Network</div>
+    <div class="brand-sub">Patient &amp; Clinic Management</div>
+    <nav>
+      <a href="index.html" class="active">Dashboard</a>
+      <a href="patients.html">Patients</a>
+      <a href="triage.html">Triage Queue</a>
+      <a href="billing.html">Billing</a>
+      <a href="budget.html">Budgets</a>
+      <a href="reports.html">Reports</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>Today at a glance</h1>
+        <p id="today-label"></p>
+      </div>
+    </div>
+
+    <div id="error-box"></div>
+
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat"><div class="stat-label">Total patients</div><div class="stat-value" id="stat-patients">–</div></div>
+      <div class="stat"><div class="stat-label">Total doctors</div><div class="stat-value" id="stat-doctors">–</div></div>
+      <div class="stat"><div class="stat-label">Waiting in triage queue</div><div class="stat-value" id="stat-waiting">–</div></div>
+      <div class="stat emergency"><div class="stat-label">Emergency cases waiting</div><div class="stat-value" id="stat-emergency">–</div></div>
+      <div class="stat"><div class="stat-label">Consultations today</div><div class="stat-value" id="stat-consults">–</div></div>
+      <div class="stat"><div class="stat-label">Revenue today</div><div class="stat-value" id="stat-revenue">–</div></div>
+      <div class="stat warn"><div class="stat-label">Unpaid invoice total</div><div class="stat-value" id="stat-unpaid">–</div></div>
+      <div class="stat warn"><div class="stat-label">Low-stock products</div><div class="stat-value" id="stat-lowstock">–</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Triage queue — top of the line</h2>
+      <table id="queue-table">
+        <thead>
+          <tr><th>Patient</th><th>Priority</th><th class="num">Score</th><th>Symptoms</th><th>Waiting since</th></tr>
+        </thead>
+        <tbody><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+      </table>
+      <div class="form-actions">
+        <a class="btn secondary" href="triage.html">Open full triage queue →</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
