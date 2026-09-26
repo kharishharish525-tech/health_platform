@@ -37,7 +37,7 @@ public class DataSeeder implements CommandLineRunner {
             Department general = save(new Department(), "General Medicine", "Block A");
             Department emergency = save(new Department(), "Emergency", "Block A - Ground Floor");
             Department pediatrics = save(new Department(), "Pediatrics", "Block B");
-            Department diagnostics = save(new Department(), "Diagnostics & Lab", "Block C");
+            save(new Department(), "Diagnostics & Lab", "Block C");
 
             Doctor d1 = new Doctor();
             d1.setFullName("Dr. Meera Nair");

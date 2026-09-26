@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Budgets · Rural Health Network Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Rural Health Network</div>
+    <div class="brand-sub">Patient &amp; Clinic Management</div>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="patients.html">Patients</a>
+      <a href="triage.html">Triage Queue</a>
+      <a href="billing.html">Billing</a>
+      <a href="budget.html" class="active">Budgets</a>
+      <a href="reports.html">Reports</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>Departmental budgets</h1>
+        <p>Allocate monthly budgets per department and track utilization.</p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Allocate a budget</h2>
+        <div id="budget-msg"></div>
+        <form id="budget-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="budgetDept">Department</label>
+              <select id="budgetDept" required></select>
+            </div>
+            <div class="field">
+              <label for="budgetYear">Fiscal year</label>
+              <input type="number" id="budgetYear" required>
+            </div>
+            <div class="field">
+              <label for="budgetMonth">Fiscal month (1-12)</label>
+              <input type="number" id="budgetMonth" min="1" max="12" required>
+            </div>
+            <div class="field">
+              <label for="budgetAmount">Allocated amount</label>
+              <input type="number" step="0.01" id="budgetAmount" required>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Allocate</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>View utilization</h2>
+        <div id="util-msg"></div>
+        <form id="util-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="utilYear">Fiscal year</label>
+              <input type="number" id="utilYear" required>
+            </div>
+            <div class="field">
+              <label for="utilMonth">Fiscal month (1-12)</label>
+              <input type="number" id="utilMonth" min="1" max="12" required>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Load report</button>
+            <a class="btn secondary" id="util-csv-link" href="#" target="_blank">Download CSV</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Utilization report</h2>
+      <table id="utilization-table">
+        <thead>
+          <tr><th>Department</th><th class="num">Allocated</th><th class="num">Spent</th><th class="num">Remaining</th><th class="num">Utilization</th></tr>
+        </thead>
+        <tbody><tr><td colspan="5" class="muted">Choose a year and month above, then Load report.</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/budget.js"></script>
+</body>
+</html>
