@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface BudgetRepository extends JpaRepository<Budget, Long> {
     List<Budget> findByDepartment_DepartmentIdAndFiscalYear(Long departmentId, Integer fiscalYear);
+    List<Budget> findByDepartment_DepartmentIdAndFiscalYearAndFiscalMonth(Long departmentId, Integer fiscalYear, Integer fiscalMonth);
     List<Budget> findByFiscalYearAndFiscalMonth(Integer fiscalYear, Integer fiscalMonth);
 }

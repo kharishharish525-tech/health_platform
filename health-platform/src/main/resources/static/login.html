@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Rural Health Network</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-page">
+  <main class="auth-layout">
+    <section class="auth-intro">
+      <p class="auth-kicker">Rural Health Network</p>
+      <h1>Care coordination, in one place.</h1>
+      <p>Sign in to manage patients, triage, billing, and clinic operations.</p>
+      <div class="auth-mark" aria-hidden="true">RHN<span>+</span></div>
+    </section>
+    <section class="auth-panel" aria-labelledby="signin-title">
+      <p class="auth-kicker">Staff access</p>
+      <h2 id="signin-title">Sign in</h2>
+      <p class="muted">Use your registered account to continue.</p>
+      <div id="auth-message" class="alert error" role="alert" hidden></div>
+      <form action="/login" method="post" class="auth-form">
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" name="username" autocomplete="username" required autofocus>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit">Sign in</button>
+      </form>
+      <p class="auth-switch">New to the platform? <a href="signup.html">Create an account</a></p>
+    </section>
+  </main>
+  <script src="js/auth.js"></script>
+</body>
+</html>

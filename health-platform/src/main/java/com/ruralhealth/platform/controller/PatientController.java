@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -31,6 +32,9 @@ public class PatientController {
 
     @PostMapping
     public Patient create(@RequestBody Patient patient) {
+        if (patient.getUhid() == null || patient.getUhid().isBlank()) {
+            patient.setUhid("RH-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase());
+        }
         return patientRepository.save(patient);
     }
 
@@ -38,6 +42,9 @@ public class PatientController {
     public ResponseEntity<Patient> update(@PathVariable Long id, @RequestBody Patient updated) {
         return patientRepository.findById(id).map(existing -> {
             updated.setPatientId(id);
+            if (updated.getUhid() == null || updated.getUhid().isBlank()) {
+                updated.setUhid(existing.getUhid());
+            }
             return ResponseEntity.ok(patientRepository.save(updated));
         }).orElse(ResponseEntity.notFound().build());
     }

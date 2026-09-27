@@ -1,0 +1,95 @@
+.auth-page {
+  min-height: 100vh;
+  background: #e8efec;
+}
+
+.auth-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+  max-width: 1120px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 56px 40px;
+  align-items: center;
+  gap: 72px;
+}
+
+.auth-intro {
+  position: relative;
+  min-height: 540px;
+  padding: 48px;
+  overflow: hidden;
+  background: #0b5d52;
+  color: #f4f7f6;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-intro::after {
+  content: "";
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  right: -130px;
+  bottom: -155px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  box-shadow: 0 0 0 36px rgba(255, 255, 255, 0.06), 0 0 0 76px rgba(255, 255, 255, 0.04);
+}
+
+.auth-kicker {
+  margin: 0 0 12px;
+  color: #398c7d;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.auth-intro .auth-kicker { color: #b9ddd5; }
+
+.auth-intro h1 {
+  max-width: 430px;
+  margin: 0;
+  font-size: 38px;
+  line-height: 1.12;
+  font-weight: 500;
+}
+
+.auth-intro > p:not(.auth-kicker) {
+  max-width: 370px;
+  margin: 18px 0 0;
+  color: #d0e5df;
+}
+
+.auth-mark {
+  position: absolute;
+  left: 48px;
+  bottom: 40px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.auth-mark span { color: #f2bd67; }
+
+.auth-panel { max-width: 420px; width: 100%; }
+.auth-panel h2 { margin: 0 0 4px; font-size: 27px; font-weight: 600; }
+.auth-panel > .muted { margin: 0 0 24px; }
+.auth-form { display: grid; gap: 17px; margin-top: 25px; }
+.auth-form .field { gap: 7px; }
+.auth-form .field label { color: var(--color-ink); font-size: 13px; font-weight: 500; }
+.auth-form .field input { min-height: 44px; }
+.auth-form button { min-height: 44px; margin-top: 4px; }
+.auth-switch { margin-top: 22px; color: var(--color-muted); font-size: 13px; }
+.auth-switch a { font-weight: 600; }
+.auth-panel .alert { margin: 16px 0 0; }
+
+@media (max-width: 760px) {
+  .auth-layout { grid-template-columns: 1fr; padding: 20px; gap: 30px; align-content: center; }
+  .auth-intro { min-height: 220px; padding: 28px; }
+  .auth-intro h1 { max-width: 360px; font-size: 29px; }
+  .auth-intro > p:not(.auth-kicker) { margin-top: 10px; }
+  .auth-mark { left: 28px; bottom: 20px; }
+  .auth-panel { margin: 0 auto; padding: 0 8px; }
+}

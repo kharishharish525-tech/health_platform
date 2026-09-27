@@ -33,6 +33,12 @@ public class BillingService {
 
     @Transactional
     public Invoice createInvoice(Long patientId, Long consultationId, List<InvoiceLineRequest> lines) {
+        if (patientId == null) {
+            throw new IllegalArgumentException("Patient is required");
+        }
+        if (lines == null || lines.isEmpty()) {
+            throw new IllegalArgumentException("At least one invoice line is required");
+        }
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new IllegalArgumentException("Patient not found: " + patientId));
 
@@ -42,11 +48,17 @@ public class BillingService {
         if (consultationId != null) {
             Consultation consultation = consultationRepository.findById(consultationId)
                     .orElseThrow(() -> new IllegalArgumentException("Consultation not found: " + consultationId));
+            if (!consultation.getPatient().getPatientId().equals(patientId)) {
+                throw new IllegalArgumentException("Consultation does not belong to the selected patient");
+            }
             invoice.setConsultation(consultation);
         }
 
         BigDecimal total = BigDecimal.ZERO;
         for (InvoiceLineRequest line : lines) {
+            if (line == null || line.productId() == null || line.quantity() == null || line.quantity() <= 0) {
+                throw new IllegalArgumentException("Each invoice line needs a product and a positive quantity");
+            }
             Product product = productRepository.findById(line.productId())
                     .orElseThrow(() -> new IllegalArgumentException("Product not found: " + line.productId()));
 
@@ -87,10 +99,28 @@ public class BillingService {
         return invoice;
     }
 
+    @SuppressWarnings("null")
     @Transactional
     public Payment recordPayment(Long invoiceId, BigDecimal amount, String method) {
+        if (invoiceId == null) {
+            throw new IllegalArgumentException("Invoice is required");
+        }
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Payment amount must be greater than zero");
+        }
+        if (method == null || !List.of("CASH", "BANK", "CARD", "UPI", "DIGITAL", "INSURANCE")
+                .contains(method.toUpperCase())) {
+            throw new IllegalArgumentException("Unsupported payment method");
+        }
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invoice not found: " + invoiceId));
+
+        BigDecimal paidBefore = paymentRepository.findByInvoice_InvoiceId(invoiceId).stream()
+                .map(Payment::getAmountPaid)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (paidBefore.add(amount).compareTo(invoice.getTotalAmount()) > 0) {
+            throw new IllegalArgumentException("Payment exceeds the invoice balance");
+        }
 
         Payment payment = new Payment();
         payment.setInvoice(invoice);
@@ -99,8 +129,8 @@ public class BillingService {
         payment = paymentRepository.save(payment);
 
         BigDecimal totalPaid = paymentRepository.findByInvoice_InvoiceId(invoiceId).stream()
-                .map(Payment::getAmountPaid)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(existingPayment -> existingPayment.getAmountPaid())
+                .reduce(BigDecimal.ZERO, (total, paymentAmount) -> total.add(paymentAmount));
 
         if (totalPaid.compareTo(invoice.getTotalAmount()) >= 0) {
             invoice.setStatus("PAID");
@@ -113,9 +143,13 @@ public class BillingService {
         journalService.postEntry(
                 "Payment received for invoice #" + invoiceId,
                 "PAYMENT", payment.getPaymentId(),
-                "1000", "1100", amount
+            isBankPayment(method) ? "1010" : "1000", "1100", amount
         );
 
         return payment;
+    }
+
+    private boolean isBankPayment(String method) {
+        return method != null && List.of("BANK", "CARD", "UPI", "DIGITAL").contains(method.toUpperCase());
     }
 }
