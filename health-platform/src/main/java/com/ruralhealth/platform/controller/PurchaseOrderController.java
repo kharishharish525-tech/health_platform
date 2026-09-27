@@ -22,16 +22,19 @@ public class PurchaseOrderController {
     private final JournalService journalService;
     private final DepartmentRepository departmentRepository;
     private final BudgetService budgetService;
+    private final VendorBillRepository vendorBillRepository;
 
     public PurchaseOrderController(PurchaseOrderRepository purchaseOrderRepository, SupplierRepository supplierRepository,
                                     ProductRepository productRepository, JournalService journalService,
-                                    DepartmentRepository departmentRepository, BudgetService budgetService) {
+                                    DepartmentRepository departmentRepository, BudgetService budgetService,
+                                    VendorBillRepository vendorBillRepository) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.supplierRepository = supplierRepository;
         this.productRepository = productRepository;
         this.journalService = journalService;
         this.departmentRepository = departmentRepository;
         this.budgetService = budgetService;
+        this.vendorBillRepository = vendorBillRepository;
     }
 
     public record PurchaseLineDto(Long productId, Integer quantity, BigDecimal unitCost) {}
@@ -116,6 +119,9 @@ public class PurchaseOrderController {
     @Transactional
     public ResponseEntity<PurchaseOrder> pay(@PathVariable Long id, @RequestBody SupplierPaymentRequest request) {
         return purchaseOrderRepository.findById(id).map(po -> {
+            if (vendorBillRepository.existsByPurchaseOrder_PurchaseOrderId(id)) {
+                throw new IllegalStateException("Pay the linked vendor bill instead of paying this purchase order directly");
+            }
             if (!"RECEIVED".equals(po.getStatus())) {
                 throw new IllegalStateException("Only received purchase orders can be paid");
             }

@@ -1,31 +1,56 @@
 /**
  * Shared fetch wrapper for the whole site.
- * All /api/** endpoints require HTTP Basic auth (see SecurityConfig.java).
- * Default demo credentials are admin / admin123 — change ADMIN_USER /
- * ADMIN_PASS below (and in SecurityConfig.java) before real deployment.
+ * Authenticated requests use the browser's same-origin session cookie.
  */
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "admin123";
-const AUTH_HEADER = "Basic " + btoa(ADMIN_USER + ":" + ADMIN_PASS);
-
 async function apiFetch(path, options = {}) {
   const headers = Object.assign(
-    { "Authorization": AUTH_HEADER, "Content-Type": "application/json" },
+    { "Content-Type": "application/json" },
     options.headers || {}
   );
   const res = await fetch(path, Object.assign({}, options, { headers }));
-  if (!res.ok) {
-    let message = res.statusText;
-    try {
-      const body = await res.json();
-      message = body.message || message;
-    } catch (e) { /* not JSON, ignore */ }
-    throw new Error(message || ("Request failed: " + res.status));
-  }
   const contentType = res.headers.get("content-type") || "";
-  if (contentType.includes("application/json")) return res.json();
-  return res.text();
+  const isJsonResponse = contentType.includes("application/json") || contentType.includes("+json");
+  const rawText = await res.text();
+
+  if (!rawText) {
+    if (!res.ok) throw new Error(res.statusText || ("Request failed: " + res.status));
+    return null;
+  }
+
+  if (isJsonResponse) {
+    try {
+      const body = JSON.parse(rawText);
+      if (!res.ok) {
+        throw new Error(body?.message || res.statusText || ("Request failed: " + res.status));
+      }
+      return body;
+    } catch (e) {
+      if (!res.ok) {
+        throw new Error(res.statusText || ("Request failed: " + res.status));
+      }
+      throw new Error("The server returned invalid JSON. Please refresh and try again.");
+    }
+  }
+
+  if (!res.ok) {
+    const trimmed = rawText.replace(/\s+/g, " ").trim();
+    throw new Error(trimmed || res.statusText || ("Request failed: " + res.status));
+  }
+
+  return rawText;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const nav = document.querySelector(".sidebar nav");
+  if (!nav) return;
+
+  const form = document.createElement("form");
+  form.action = "/logout";
+  form.method = "post";
+  form.className = "sidebar-signout";
+  form.innerHTML = '<button type="submit">Sign out</button>';
+  nav.after(form);
+});
 
 function money(value) {
   const n = Number(value || 0);

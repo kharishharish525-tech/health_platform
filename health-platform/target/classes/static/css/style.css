@@ -98,6 +98,17 @@ a { color: var(--color-primary); }
   font-weight: 500;
 }
 
+.sidebar-signout { margin-top: 18px; }
+.sidebar-signout button {
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  color: #cfe6e1;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  text-align: left;
+}
+.sidebar-signout button:hover { background: rgba(255, 255, 255, 0.08); }
+
 .main {
   flex: 1;
   padding: 28px 36px 60px;

@@ -1,6 +1,7 @@
 package com.ruralhealth.platform.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,6 +18,11 @@ public class VendorBill {
     @ManyToOne
     @JoinColumn(name = "supplier_id", nullable = false)
     private Supplier supplier;
+
+    @OneToOne
+    @JoinColumn(name = "purchase_order_id", unique = true)
+    @JsonIgnore
+    private PurchaseOrder purchaseOrder;
 
     @Column(nullable = false, unique = true, length = 50)
     private String billNumber;

@@ -1,5 +1,6 @@
 package com.ruralhealth.platform.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ public class PurchaseItem {
 
     @ManyToOne
     @JoinColumn(name = "purchase_order_id", nullable = false)
+    @JsonIgnore
     private PurchaseOrder purchaseOrder;
 
     @ManyToOne
